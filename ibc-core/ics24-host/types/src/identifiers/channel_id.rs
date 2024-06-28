@@ -5,7 +5,7 @@ use derive_more::Into;
 use ibc_primitives::prelude::*;
 
 use crate::error::IdentifierError;
-use crate::validate::validate_channel_identifier;
+use crate::validate::{validate_channel_identifier, validate_client_identifier};
 
 const CHANNEL_ID_PREFIX: &str = "channel";
 
@@ -74,7 +74,9 @@ impl FromStr for ChannelId {
     type Err = IdentifierError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        validate_channel_identifier(s).map(|_| Self(s.to_string()))
+        validate_channel_identifier(s)
+            .or_else(|_| validate_client_identifier(s))
+            .map(|_| Self(s.to_string()))
     }
 }
 
